@@ -10,8 +10,7 @@ app.use(cors());
 app.use(express.json());
 
 // connect MongoDB
-mongoose.connect("mongodb://127.0.0.1:27017/planner")
-    .then(() => console.log("MongoDB connected"))
+mongoose.connect("mongodb://amisha:amisha123@ac-gxxavhb-shard-00-00.7bcq2sq.mongodb.net:27017,ac-gxxavhb-shard-00-01.7bcq2sq.mongodb.net:27017,ac-gxxavhb-shard-00-02.7bcq2sq.mongodb.net:27017/?ssl=true&replicaSet=atlas-trmcg7-shard-0&authSource=admin&appName=Cluster0")
     .catch(err => console.log(err));
 
 // test route
@@ -19,7 +18,7 @@ app.get("/", (req, res) => {
     res.send("Server is working");
 });
 
-// add task
+// add taskde
 app.post("/add-task", async (req, res) => {
     const { text, date } = req.body;
 
@@ -70,6 +69,9 @@ app.put("/toggle-task/:id", async (req, res) => {
     await task.save();
 
     res.send("Task updated");
+});
+app.get("/tasks", (req, res) => {
+  res.json([{ task: "Test task" }]);
 });
 
 // start server
