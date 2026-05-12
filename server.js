@@ -10,8 +10,7 @@ app.use(cors());
 app.use(express.json());
 
 // connect MongoDB
-mongoose.connect("mongodb://amisha:amisha123@ac-gxxavhb-shard-00-00.7bcq2sq.mongodb.net:27017,ac-gxxavhb-shard-00-01.7bcq2sq.mongodb.net:27017,ac-gxxavhb-shard-00-02.7bcq2sq.mongodb.net:27017/?ssl=true&replicaSet=atlas-trmcg7-shard-0&authSource=admin&appName=Cluster0")
-    .catch(err => console.log(err));
+mongoose.connect(process.env.MONGO_URI)
 
 // test route
 app.get("/", (req, res) => {
