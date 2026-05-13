@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Study Planner</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+
   <style>
     body {
       margin: 0;
@@ -26,25 +27,22 @@
 
     h1 {
       margin-bottom: 20px;
-      color: #333;
     }
 
     input {
-      width: 70%;
+      width: 65%;
       padding: 10px;
       border-radius: 8px;
       border: 1px solid #ccc;
-      outline: none;
     }
 
     button {
-      padding: 10px 15px;
+      padding: 10px;
       border: none;
       border-radius: 8px;
       background: #667eea;
       color: white;
       cursor: pointer;
-      transition: 0.3s;
     }
 
     button:hover {
@@ -69,15 +67,11 @@
 
     .delete {
       background: red;
-      border: none;
       color: white;
+      border: none;
       border-radius: 5px;
       padding: 5px 8px;
       cursor: pointer;
-    }
-
-    .delete:hover {
-      background: darkred;
     }
   </style>
 </head>
@@ -94,7 +88,7 @@
 </div>
 
 <script>
-  const API = "https://your-backend.onrender.com/tasks"; 
+  const API = "https://study-planner-backend-p03g.onrender.com"; 
 
   async function fetchTasks() {
     const res = await fetch(API);
@@ -105,10 +99,12 @@
 
     data.forEach(task => {
       const li = document.createElement("li");
+
       li.innerHTML = `
-        ${task.text}
+        <span>${task.text}</span>
         <button class="delete" onclick="deleteTask('${task._id}')">X</button>
       `;
+
       list.appendChild(li);
     });
   }
@@ -117,9 +113,13 @@
     const input = document.getElementById("taskInput");
     const text = input.value;
 
+    if (!text) return;
+
     await fetch(API, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify({ text })
     });
 
@@ -131,6 +131,7 @@
     await fetch(API + "/" + id, {
       method: "DELETE"
     });
+
     fetchTasks();
   }
 
