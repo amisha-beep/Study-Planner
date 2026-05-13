@@ -126,7 +126,7 @@ document.getElementById("welcome").innerText = "Welcome, " + user;
   async function fetchTasks() {
     const res = await fetch(API);
     const data = await res.json();
-const filtered = data.filter(task => task.user === user);
+const filtered = data.filter(task => !task.user || task.user === user);
 
     const list = document.getElementById("taskList");
     list.innerHTML = "";
