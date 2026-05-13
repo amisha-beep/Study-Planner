@@ -103,8 +103,10 @@
 
 <div class="container">
   <h1>📚 Study Planner</h1>
+  <p id="welcome"></p>
 
   <input type="text" id="taskInput" placeholder="Enter task">
+  <button onclick="logout()">Logout</button>
   <button onclick="addTask()">Add</button>
   <button class="clear" onclick="clearTasks()">Clear All</button>
 
@@ -112,16 +114,24 @@
 </div>
 
 <script>
+    let user = localStorage.getItem("user");
+
+if (!user) {
+  user = prompt("Enter your username:");
+  localStorage.setItem("user", user);
+}
+document.getElementById("welcome").innerText = "Welcome, " + user;
   const API = "https://study-planner-backend-p03g.onrender.com"; 
   // Load all tasks
   async function fetchTasks() {
     const res = await fetch(API);
     const data = await res.json();
+const filtered = data.filter(task => task.user === user);
 
     const list = document.getElementById("taskList");
     list.innerHTML = "";
 
-    data.forEach(task => {
+    filtered.forEach(task => {
       const li = document.createElement("li");
 
       li.innerHTML = `
@@ -154,7 +164,7 @@
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ text })
+     body: JSON.stringify({ text, user })
     });
 
     input.value = "";
@@ -206,6 +216,10 @@
 
     fetchTasks();
   }
+  function logout() {
+  localStorage.removeItem("user");
+  location.reload();
+}
 
   // Load tasks on page load
   fetchTasks();
