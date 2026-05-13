@@ -16,6 +16,26 @@ mongoose.connect(process.env.MONGO_URI)
 app.get("/", (req, res) => {
     res.send("Server is working");
 });
+let tasks = [];
+
+// GET all tasks
+app.get("/tasks", (req, res) => {
+  res.json(tasks);
+});
+
+// ADD task
+app.post("/tasks", (req, res) => {
+  const newTask = req.body;
+  tasks.push(newTask);
+  res.json(newTask);
+});
+
+// DELETE task
+app.delete("/tasks/:id", (req, res) => {
+  const id = req.params.id;
+  tasks = tasks.filter(task => task.id !== id);
+  res.send("Deleted");
+});
 
 // add taskde
 app.post("/add-task", async (req, res) => {
