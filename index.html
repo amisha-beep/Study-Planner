@@ -121,55 +121,28 @@ if (!user) {
   localStorage.setItem("user", user);
 }
 document.getElementById("welcome").innerText = "Welcome, " + user;
-  const API = "https://study-planner-backend-p03g.onrender.com"; 
+ const API = null; 
   // Load all tasks
-  async function fetchTasks() {
-    const res = await fetch(API);
-    const data = await res.json();
-const filtered = data;
-
-    const list = document.getElementById("taskList");
-    list.innerHTML = "";
-
-    filtered.forEach(task => {
-      const li = document.createElement("li");
-
-      li.innerHTML = `
-        <div class="task-row">
-          <div>
-            <input type="checkbox" onchange="toggleComplete(this)">
-            <span>${task.text}</span>
-          </div>
-          <div>
-            <button onclick="editTask('${task._id}', '${task.text}')">✏️</button>
-            <button class="delete" onclick="deleteTask('${task._id}')">X</button>
-          </div>
-        </div>
-        <div class="date">${new Date().toLocaleString()}</div>
-      `;
-
-      list.appendChild(li);
-    });
-  }
+  function fetchTasks() {
+  // do nothing for now
+}
 
   // Add new task
-  async function addTask() {
-    const input = document.getElementById("taskInput");
-    const text = input.value.trim();
+  function addTask() {
+  const input = document.getElementById("taskInput");
+  const text = input.value.trim();
 
-    if (!text) return;
+  if (!text) return;
 
-    await fetch(API, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-     body: JSON.stringify({ text, user })
-    });
+  const list = document.getElementById("taskList");
 
-    input.value = "";
-    fetchTasks();
-  }
+  const li = document.createElement("li");
+  li.innerText = text;
+
+  list.appendChild(li);
+
+  input.value = "";
+}
 
   // Delete task
   async function deleteTask(id) {
