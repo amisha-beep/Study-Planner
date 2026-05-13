@@ -20,7 +20,7 @@
       background: white;
       padding: 30px;
       border-radius: 12px;
-      width: 350px;
+      width: 380px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.2);
       text-align: center;
     }
@@ -30,7 +30,7 @@
     }
 
     input {
-      width: 65%;
+      width: 60%;
       padding: 10px;
       border-radius: 8px;
       border: 1px solid #ccc;
@@ -43,10 +43,15 @@
       background: #667eea;
       color: white;
       cursor: pointer;
+      margin: 5px;
     }
 
     button:hover {
       background: #5a67d8;
+    }
+
+    .clear {
+      background: red;
     }
 
     ul {
@@ -61,8 +66,20 @@
       border-radius: 8px;
       margin-bottom: 10px;
       display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .task-row {
+      width: 100%;
+      display: flex;
       justify-content: space-between;
       align-items: center;
+    }
+
+    .completed {
+      text-decoration: line-through;
+      color: gray;
     }
 
     .delete {
@@ -72,6 +89,12 @@
       border-radius: 5px;
       padding: 5px 8px;
       cursor: pointer;
+    }
+
+    .date {
+      font-size: 12px;
+      color: gray;
+      margin-top: 5px;
     }
   </style>
 </head>
@@ -83,6 +106,7 @@
 
   <input type="text" id="taskInput" placeholder="Enter task">
   <button onclick="addTask()">Add</button>
+  <button class="clear" onclick="clearTasks()">Clear All</button>
 
   <ul id="taskList"></ul>
 </div>
@@ -101,12 +125,23 @@
       const li = document.createElement("li");
 
       li.innerHTML = `
-        <span>${task.text}</span>
-        <button class="delete" onclick="deleteTask('${task._id}')">X</button>
+        <div class="task-row">
+          <div>
+            <input type="checkbox" onchange="toggleComplete(this)">
+            <span>${task.text}</span>
+          </div>
+          <button class="delete" onclick="deleteTask('${task._id}')">X</button>
+        </div>
+        <div class="date">${new Date().toLocaleString()}</div>
       `;
 
       list.appendChild(li);
     });
+  }
+
+  function toggleComplete(checkbox) {
+    const text = checkbox.nextElementSibling;
+    text.classList.toggle("completed");
   }
 
   async function addTask() {
@@ -131,6 +166,19 @@
     await fetch(API + "/" + id, {
       method: "DELETE"
     });
+
+    fetchTasks();
+  }
+
+  async function clearTasks() {
+    const res = await fetch(API);
+    const data = await res.json();
+
+    for (let task of data) {
+      await fetch(API + "/" + task._id, {
+        method: "DELETE"
+      });
+    }
 
     fetchTasks();
   }
