@@ -121,27 +121,37 @@ if (!user) {
   localStorage.setItem("user", user);
 }
 document.getElementById("welcome").innerText = "Welcome, " + user;
- const API = null; 
+ const API = "https://your-backend-url/tasks";
   // Load all tasks
-  function fetchTasks() {
-  // do nothing for now
+  async function fetchTasks() {
+  const res = await fetch(API);
+  const data = await res.json();
+
+  const list = document.getElementById("taskList");
+  list.innerHTML = "";
+
+  data.forEach(task => {
+    const li = document.createElement("li");
+    li.innerText = task.text;
+    list.appendChild(li);
+  });
 }
 
   // Add new task
-  function addTask() {
+ async function addTask() {
   const input = document.getElementById("taskInput");
   const text = input.value.trim();
 
   if (!text) return;
 
-  const list = document.getElementById("taskList");
-
-  const li = document.createElement("li");
-  li.innerText = text;
-
-  list.appendChild(li);
+  await fetch(API, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text })
+  });
 
   input.value = "";
+  fetchTasks(); // refresh list
 }
 
   // Delete task
