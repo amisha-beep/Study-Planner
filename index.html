@@ -113,7 +113,7 @@
 
 <script>
   const API = "https://study-planner-backend-p03g.onrender.com"; 
-
+  // Load all tasks
   async function fetchTasks() {
     const res = await fetch(API);
     const data = await res.json();
@@ -130,7 +130,10 @@
             <input type="checkbox" onchange="toggleComplete(this)">
             <span>${task.text}</span>
           </div>
-          <button class="delete" onclick="deleteTask('${task._id}')">X</button>
+          <div>
+            <button onclick="editTask('${task._id}', '${task.text}')">✏️</button>
+            <button class="delete" onclick="deleteTask('${task._id}')">X</button>
+          </div>
         </div>
         <div class="date">${new Date().toLocaleString()}</div>
       `;
@@ -139,14 +142,10 @@
     });
   }
 
-  function toggleComplete(checkbox) {
-    const text = checkbox.nextElementSibling;
-    text.classList.toggle("completed");
-  }
-
+  // Add new task
   async function addTask() {
     const input = document.getElementById("taskInput");
-    const text = input.value;
+    const text = input.value.trim();
 
     if (!text) return;
 
@@ -162,6 +161,7 @@
     fetchTasks();
   }
 
+  // Delete task
   async function deleteTask(id) {
     await fetch(API + "/" + id, {
       method: "DELETE"
@@ -170,6 +170,30 @@
     fetchTasks();
   }
 
+  // Edit task
+  async function editTask(id, oldText) {
+    const newText = prompt("Edit your task:", oldText);
+
+    if (!newText || newText.trim() === "") return;
+
+    await fetch(API + "/" + id, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ text: newText })
+    });
+
+    fetchTasks();
+  }
+
+  // Mark complete (UI only)
+  function toggleComplete(checkbox) {
+    const text = checkbox.nextElementSibling;
+    text.classList.toggle("completed");
+  }
+
+  // Clear all tasks
   async function clearTasks() {
     const res = await fetch(API);
     const data = await res.json();
@@ -183,6 +207,7 @@
     fetchTasks();
   }
 
+  // Load tasks on page load
   fetchTasks();
 </script>
 
