@@ -121,7 +121,7 @@ if (!user) {
   localStorage.setItem("user", user);
 }
 document.getElementById("welcome").innerText = "Welcome, " + user;
- const API = "https://your-backend-url/tasks";
+ const API = "";
   // Load all tasks
   async function fetchTasks() {
   const res = await fetch(API);
@@ -205,7 +205,7 @@ document.getElementById("welcome").innerText = "Welcome, " + user;
 }
 
   // Load tasks on page load
-  fetchTasks();
+  //fetchTasks();
 </script>
 
 </body>
