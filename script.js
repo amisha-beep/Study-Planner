@@ -126,7 +126,7 @@ async function loadTasks() {
 async function searchTasks() {
     let keyword = document.getElementById("searchInput").value.toLowerCase();
 
-    let res = await fetch("http://localhost:3000/tasks");
+    let res = await fetch("https://study-planner-backend-p03g.onrender.com/tasks");
     let data = await res.json();
 
     const list = document.getElementById("taskList");
