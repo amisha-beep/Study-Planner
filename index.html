@@ -113,8 +113,17 @@
   <ul id="taskList"></ul>
 </div>
 
-<script>
-    function addTask() {
+v<script>
+let user = localStorage.getItem("user");
+
+if (!user) {
+  user = prompt("Enter your username:");
+  localStorage.setItem("user", user);
+}
+
+document.getElementById("welcome").innerText = "Welcome, " + user;
+
+function addTask() {
   const input = document.getElementById("taskInput");
   const text = input.value;
 
@@ -128,8 +137,14 @@
   input.value = "";
 }
 
-  // Load tasks on page load
-  //fetchTasks();
+function clearTasks() {
+  document.getElementById("taskList").innerHTML = "";
+}
+
+function logout() {
+  localStorage.removeItem("user");
+  location.reload();
+}
 </script>
 
 </body>
