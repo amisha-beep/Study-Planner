@@ -114,94 +114,18 @@
 </div>
 
 <script>
-    let user = localStorage.getItem("user");
-
-if (!user) {
-  user = prompt("Enter your username:");
-  localStorage.setItem("user", user);
-}
-document.getElementById("welcome").innerText = "Welcome, " + user;
- const API = "";
-  // Load all tasks
-  async function fetchTasks() {
-  const res = await fetch(API);
-  const data = await res.json();
-
-  const list = document.getElementById("taskList");
-  list.innerHTML = "";
-
-  data.forEach(task => {
-    const li = document.createElement("li");
-    li.innerText = task.text;
-    list.appendChild(li);
-  });
-}
-
-  // Add new task
- async function addTask() {
+    function addTask() {
   const input = document.getElementById("taskInput");
-  const text = input.value.trim();
+  const text = input.value;
 
   if (!text) return;
 
-  await fetch(API, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text })
-  });
+  const li = document.createElement("li");
+  li.innerText = text;
+
+  document.getElementById("taskList").appendChild(li);
 
   input.value = "";
-  fetchTasks(); // refresh list
-}
-
-  // Delete task
-  async function deleteTask(id) {
-    await fetch(API + "/" + id, {
-      method: "DELETE"
-    });
-
-    fetchTasks();
-  }
-
-  // Edit task
-  async function editTask(id, oldText) {
-    const newText = prompt("Edit your task:", oldText);
-
-    if (!newText || newText.trim() === "") return;
-
-    await fetch(API + "/" + id, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ text: newText })
-    });
-
-    fetchTasks();
-  }
-
-  // Mark complete (UI only)
-  function toggleComplete(checkbox) {
-    const text = checkbox.nextElementSibling;
-    text.classList.toggle("completed");
-  }
-
-  // Clear all tasks
-  async function clearTasks() {
-    const res = await fetch(API);
-    const data = await res.json();
-
-    for (let task of data) {
-      await fetch(API + "/" + task._id, {
-        method: "DELETE"
-      });
-    }
-
-    fetchTasks();
-  }
-  function logout() {
-  localStorage.removeItem("user");
-  location.reload();
 }
 
   // Load tasks on page load
