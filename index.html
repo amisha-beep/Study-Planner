@@ -1,9 +1,122 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Test</title>
+  <meta charset="UTF-8">
+  <title>Study Planner</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      width: 380px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 60%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      background: #667eea;
+      color: white;
+      cursor: pointer;
+      margin: 5px;
+    }
+
+    button:hover {
+      background: #5a67d8;
+    }
+
+    .clear {
+      background: red;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 20px;
+    }
+
+    li {
+      background: #f3f4f6;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+  </style>
 </head>
+
 <body>
-  <h1>It Works 🎉</h1>
+
+<div class="container">
+  <h1>📚 Study Planner</h1>
+  <p id="welcome"></p>
+
+  <input type="text" id="taskInput" placeholder="Enter task">
+  <br>
+
+  <button onclick="addTask()">Add</button>
+  <button class="clear" onclick="clearTasks()">Clear All</button>
+  <button onclick="logout()">Logout</button>
+
+  <ul id="taskList"></ul>
+</div>
+
+<script>
+  let user = localStorage.getItem("user");
+
+  if (!user) {
+    user = prompt("Enter your username:");
+    localStorage.setItem("user", user);
+  }
+
+  document.getElementById("welcome").innerText = "Welcome, " + user;
+
+  function addTask() {
+    const input = document.getElementById("taskInput");
+    const text = input.value.trim();
+
+    if (!text) return;
+
+    const li = document.createElement("li");
+    li.innerText = text;
+
+    document.getElementById("taskList").appendChild(li);
+    input.value = "";
+  }
+
+  function clearTasks() {
+    document.getElementById("taskList").innerHTML = "";
+  }
+
+  function logout() {
+    localStorage.removeItem("user");
+    location.reload();
+  }
+</script>
+
 </body>
 </html>
