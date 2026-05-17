@@ -1,27 +1,46 @@
-let user = localStorage.getItem("user");
+/* 🔐 LOGIN */
+function login() {
+  let user = document.getElementById("username").value;
+  let pass = document.getElementById("password").value;
 
-if (!user) {
-  user = prompt("Enter your name:");
-  localStorage.setItem("user", user);
+  if (user && pass) {
+    localStorage.setItem("user", user);
+    document.getElementById("auth").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    showWelcome();
+  } else {
+    alert("Enter details");
+  }
 }
 
-document.getElementById("welcome").innerText = "Welcome, " + user;
+/* 👤 SHOW USER */
+function showWelcome() {
+  let user = localStorage.getItem("user");
+  if (user) {
+    let title = document.querySelector("#app h2");
+    title.innerText = "📚 Study Planner - " + user;
+  }
+}
 
-// 🌙 Dark mode
+/* 🌙 DARK MODE */
 function toggleDarkMode() {
   document.body.classList.toggle("dark");
 }
 
-// ➕ Add task
+/* ➕ ADD TASK */
 function addTask() {
   let text = document.getElementById("taskInput").value;
   let date = document.getElementById("dateInput").value;
-  let priority = document.getElementById("priorityInput").value;
 
   if (!text || !date) return;
 
   let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-  tasks.push({ text, date, priority });
+
+  tasks.push({
+    text,
+    date,
+    completed: false
+  });
 
   localStorage.setItem("tasks", JSON.stringify(tasks));
 
@@ -31,36 +50,46 @@ function addTask() {
   loadTasks();
 }
 
-// 📥 Load tasks
+/* 📥 LOAD TASKS */
 function loadTasks() {
   let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-  const list = document.getElementById("taskList");
+  let list = document.getElementById("taskList");
   list.innerHTML = "";
 
-  document.getElementById("emptyMsg").style.display =
-    tasks.length ? "none" : "block";
+  tasks.forEach((t, i) => {
+    let li = document.createElement("li");
 
-  tasks.forEach((task, index) => {
-    const li = document.createElement("li");
-    li.classList.add(task.priority);
+    // 🔄 DRAG SETUP
     li.setAttribute("draggable", true);
-    li.setAttribute("data-index", index);
+    li.setAttribute("data-index", i);
+    li.ondragstart = dragStart;
+    li.ondragover = dragOver;
+    li.ondrop = drop;
 
     li.innerHTML = `
-      <span>${task.text} (${task.date})</span>
-      <button onclick="deleteTask(${index})">❌</button>
+      <div>
+        <input type="checkbox" ${t.completed ? "checked" : ""}
+          onchange="toggleTask(${i})">
+        <span style="${t.completed ? 'text-decoration:line-through; color:gray;' : ''}">
+          ${t.text} (${t.date})
+        </span>
+      </div>
+      <button onclick="deleteTask(${i})">❌</button>
     `;
-
-    // drag events
-    li.addEventListener("dragstart", dragStart);
-    li.addEventListener("dragover", dragOver);
-    li.addEventListener("drop", drop);
 
     list.appendChild(li);
   });
 }
 
-// ❌ Delete
+/* ☑️ TOGGLE TASK */
+function toggleTask(index) {
+  let tasks = JSON.parse(localStorage.getItem("tasks"));
+  tasks[index].completed = !tasks[index].completed;
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+  loadTasks();
+}
+
+/* ❌ DELETE TASK */
 function deleteTask(index) {
   let tasks = JSON.parse(localStorage.getItem("tasks"));
   tasks.splice(index, 1);
@@ -68,11 +97,7 @@ function deleteTask(index) {
   loadTasks();
 }
 
-// 🧹 Clear
-function clearTasks() {
-  localStorage.removeItem("tasks");
-  loadTasks();
-}
+/* 🔄 DRAG & DROP */
 let draggedIndex = null;
 
 function dragStart(e) {
@@ -84,7 +109,10 @@ function dragOver(e) {
 }
 
 function drop(e) {
-  let targetIndex = e.target.closest("li").getAttribute("data-index");
+  let target = e.target.closest("li");
+  if (!target) return;
+
+  let targetIndex = target.getAttribute("data-index");
 
   let tasks = JSON.parse(localStorage.getItem("tasks"));
 
@@ -95,5 +123,6 @@ function drop(e) {
   loadTasks();
 }
 
-// 🚀 Start
+/* 🚀 INIT */
+showWelcome();
 loadTasks();

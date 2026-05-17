@@ -4,11 +4,7 @@
 <meta charset="UTF-8">
 <title>Study Planner</title>
 
-<!-- Icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
 <style>
-/* 🌈 Background */
 body {
   margin: 0;
   font-family: Arial;
@@ -19,7 +15,7 @@ body {
   height: 100vh;
 }
 
-/* Glass UI */
+/* Container */
 .container {
   backdrop-filter: blur(15px);
   background: rgba(255,255,255,0.15);
@@ -55,7 +51,7 @@ button:hover {
   transform: scale(1.05);
 }
 
-/* Tasks */
+/* Task */
 li {
   background: rgba(255,255,255,0.2);
   margin: 8px 0;
@@ -63,6 +59,7 @@ li {
   border-radius: 10px;
   display: flex;
   justify-content: space-between;
+  align-items: center;
   animation: fadeIn 0.3s ease;
 }
 
@@ -87,19 +84,25 @@ li {
 
 <div class="container">
 
-  <h2>🔐 Login</h2>
+  <!-- LOGIN -->
   <div id="auth">
+    <h2>🔐 Login</h2>
     <input id="username" placeholder="Username">
     <input id="password" type="password" placeholder="Password">
     <button onclick="login()">Login</button>
   </div>
 
+  <!-- APP -->
   <div id="app" style="display:none;">
     <h2>📚 Study Planner</h2>
 
     <input id="taskInput" placeholder="Enter task">
-    <button onclick="addTask()"><i class="fas fa-plus"></i></button>
-    <button onclick="toggleDarkMode()"><i class="fas fa-moon"></i></button>
+    <input type="date" id="dateInput">
+
+    <br>
+
+    <button onclick="addTask()">➕</button>
+    <button onclick="toggleDarkMode()">🌙</button>
 
     <ul id="taskList"></ul>
   </div>
@@ -107,7 +110,8 @@ li {
 </div>
 
 <script>
-/* Fake login (for demo) */
+
+/* 🔐 LOGIN */
 function login() {
   let user = document.getElementById("username").value;
   let pass = document.getElementById("password").value;
@@ -120,25 +124,31 @@ function login() {
   }
 }
 
-/* Dark mode */
+/* 🌙 DARK MODE */
 function toggleDarkMode(){
   document.body.classList.toggle("dark");
 }
 
-/* Add task */
+/* ➕ ADD TASK */
 function addTask(){
   let text = document.getElementById("taskInput").value;
-  if(!text) return;
+  let date = document.getElementById("dateInput").value;
+
+  if(!text || !date) return;
 
   let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-  tasks.push(text);
+
+  tasks.push({ text, date, completed: false });
+
   localStorage.setItem("tasks", JSON.stringify(tasks));
 
   document.getElementById("taskInput").value = "";
+  document.getElementById("dateInput").value = "";
+
   loadTasks();
 }
 
-/* Load tasks */
+/* 📥 LOAD TASKS */
 function loadTasks(){
   let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
   let list = document.getElementById("taskList");
@@ -146,15 +156,34 @@ function loadTasks(){
 
   tasks.forEach((t,i)=>{
     let li = document.createElement("li");
+
     li.innerHTML = `
-      ${t}
+      <div>
+        <input type="checkbox" ${t.completed ? "checked" : ""}
+          onchange="toggleTask(${i})">
+        <span style="${t.completed ? 'text-decoration:line-through; color:gray;' : ''}">
+          ${t.text} (${t.date})
+        </span>
+      </div>
       <button onclick="deleteTask(${i})">❌</button>
     `;
+
     list.appendChild(li);
   });
 }
 
-/* Delete */
+/* ☑️ TOGGLE TASK */
+function toggleTask(index){
+  let tasks = JSON.parse(localStorage.getItem("tasks"));
+
+  tasks[index].completed = !tasks[index].completed;
+
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+
+  loadTasks();
+}
+
+/* ❌ DELETE TASK */
 function deleteTask(i){
   let tasks = JSON.parse(localStorage.getItem("tasks"));
   tasks.splice(i,1);
@@ -162,7 +191,9 @@ function deleteTask(i){
   loadTasks();
 }
 
+/* 🚀 INIT */
 loadTasks();
+
 </script>
 
 </body>
