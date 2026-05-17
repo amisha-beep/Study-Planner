@@ -1,121 +1,168 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Study Planner</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<title>Study Planner</title>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
+<!-- Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-    .container {
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      width: 380px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-      text-align: center;
-    }
+<style>
+/* 🌈 Background */
+body {
+  margin: 0;
+  font-family: Arial;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
 
-    h1 {
-      margin-bottom: 20px;
-    }
+/* Glass UI */
+.container {
+  backdrop-filter: blur(15px);
+  background: rgba(255,255,255,0.15);
+  padding: 25px;
+  border-radius: 20px;
+  width: 400px;
+  text-align: center;
+  color: white;
+}
 
-    input {
-      width: 60%;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-    }
+/* Inputs */
+input {
+  width: 90%;
+  padding: 10px;
+  margin: 5px;
+  border-radius: 10px;
+  border: none;
+}
 
-    button {
-      padding: 10px;
-      border: none;
-      border-radius: 8px;
-      background: #667eea;
-      color: white;
-      cursor: pointer;
-      margin: 5px;
-    }
+/* Buttons */
+button {
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  margin: 5px;
+  cursor: pointer;
+  background: #ffffff33;
+  color: white;
+  transition: 0.2s;
+}
 
-    button:hover {
-      background: #5a67d8;
-    }
+button:hover {
+  transform: scale(1.05);
+}
 
-    .clear {
-      background: red;
-    }
+/* Tasks */
+li {
+  background: rgba(255,255,255,0.2);
+  margin: 8px 0;
+  padding: 10px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  animation: fadeIn 0.3s ease;
+}
 
-    ul {
-      list-style: none;
-      padding: 0;
-      margin-top: 20px;
-    }
+/* Animation */
+@keyframes fadeIn {
+  from {opacity:0; transform:translateY(10px);}
+  to {opacity:1; transform:translateY(0);}
+}
 
-    li {
-      background: #f3f4f6;
-      padding: 10px;
-      border-radius: 8px;
-      margin-bottom: 10px;
-    }
-  </style>
+/* Dark mode */
+.dark {
+  background: #1a202c;
+}
+
+.dark .container {
+  background: rgba(0,0,0,0.4);
+}
+</style>
 </head>
 
 <body>
 
 <div class="container">
-  <h1>📚 Study Planner</h1>
-  <p id="welcome"></p>
 
-  <input type="text" id="taskInput" placeholder="Enter task">
-  <br>
+  <h2>🔐 Login</h2>
+  <div id="auth">
+    <input id="username" placeholder="Username">
+    <input id="password" type="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+  </div>
 
-  <button onclick="addTask()">Add</button>
-  <button class="clear" onclick="clearTasks()">Clear All</button>
-  <button onclick="logout()">Logout</button>
+  <div id="app" style="display:none;">
+    <h2>📚 Study Planner</h2>
 
-  <ul id="taskList"></ul>
+    <input id="taskInput" placeholder="Enter task">
+    <button onclick="addTask()"><i class="fas fa-plus"></i></button>
+    <button onclick="toggleDarkMode()"><i class="fas fa-moon"></i></button>
+
+    <ul id="taskList"></ul>
+  </div>
+
 </div>
 
 <script>
-  let user = localStorage.getItem("user");
+/* Fake login (for demo) */
+function login() {
+  let user = document.getElementById("username").value;
+  let pass = document.getElementById("password").value;
 
-  if (!user) {
-    user = prompt("Enter your username:");
-    localStorage.setItem("user", user);
+  if(user && pass){
+    document.getElementById("auth").style.display = "none";
+    document.getElementById("app").style.display = "block";
+  } else {
+    alert("Enter details");
   }
+}
 
-  document.getElementById("welcome").innerText = "Welcome, " + user;
+/* Dark mode */
+function toggleDarkMode(){
+  document.body.classList.toggle("dark");
+}
 
-  function addTask() {
-    const input = document.getElementById("taskInput");
-    const text = input.value.trim();
+/* Add task */
+function addTask(){
+  let text = document.getElementById("taskInput").value;
+  if(!text) return;
 
-    if (!text) return;
+  let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+  tasks.push(text);
+  localStorage.setItem("tasks", JSON.stringify(tasks));
 
-    const li = document.createElement("li");
-    li.innerText = text;
+  document.getElementById("taskInput").value = "";
+  loadTasks();
+}
 
-    document.getElementById("taskList").appendChild(li);
-    input.value = "";
-  }
+/* Load tasks */
+function loadTasks(){
+  let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+  let list = document.getElementById("taskList");
+  list.innerHTML = "";
 
-  function clearTasks() {
-    document.getElementById("taskList").innerHTML = "";
-  }
+  tasks.forEach((t,i)=>{
+    let li = document.createElement("li");
+    li.innerHTML = `
+      ${t}
+      <button onclick="deleteTask(${i})">❌</button>
+    `;
+    list.appendChild(li);
+  });
+}
 
-  function logout() {
-    localStorage.removeItem("user");
-    location.reload();
-  }
+/* Delete */
+function deleteTask(i){
+  let tasks = JSON.parse(localStorage.getItem("tasks"));
+  tasks.splice(i,1);
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+  loadTasks();
+}
+
+loadTasks();
 </script>
 
 </body>

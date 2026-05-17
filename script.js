@@ -1,145 +1,99 @@
-// 🌙 DARK MODE
+let user = localStorage.getItem("user");
+
+if (!user) {
+  user = prompt("Enter your name:");
+  localStorage.setItem("user", user);
+}
+
+document.getElementById("welcome").innerText = "Welcome, " + user;
+
+// 🌙 Dark mode
 function toggleDarkMode() {
-    document.body.classList.toggle("dark");
+  document.body.classList.toggle("dark");
 }
 
-// 🔔 TOAST
-function showToast(message) {
-    const toast = document.getElementById("toast");
-    toast.innerText = message;
-    toast.style.display = "block";
-    toast.style.opacity = "1";
+// ➕ Add task
+function addTask() {
+  let text = document.getElementById("taskInput").value;
+  let date = document.getElementById("dateInput").value;
+  let priority = document.getElementById("priorityInput").value;
 
-    setTimeout(() => {
-        toast.style.opacity = "0";
-    }, 1500);
+  if (!text || !date) return;
 
-    setTimeout(() => {
-        toast.style.display = "none";
-    }, 2000);
+  let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+  tasks.push({ text, date, priority });
+
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+
+  document.getElementById("taskInput").value = "";
+  document.getElementById("dateInput").value = "";
+
+  loadTasks();
 }
 
-// ➕ ADD TASK
-async function addTask() {
-    let task = document.getElementById("taskInput").value;
-    let date = document.getElementById("dateInput").value;
-    let priority = document.getElementById("priorityInput").value;
+// 📥 Load tasks
+function loadTasks() {
+  let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+  const list = document.getElementById("taskList");
+  list.innerHTML = "";
 
-    if (!task || !date) {
-        showToast("Fill all fields ❗");
-        return;
-    }
+  document.getElementById("emptyMsg").style.display =
+    tasks.length ? "none" : "block";
 
-    await fetch("https://study-planner-backend-p03g.onrender.com/add-task", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: task, date, priority })
-    });
+  tasks.forEach((task, index) => {
+    const li = document.createElement("li");
+    li.classList.add(task.priority);
+    li.setAttribute("draggable", true);
+    li.setAttribute("data-index", index);
 
-    showToast("Task added ✅");
+    li.innerHTML = `
+      <span>${task.text} (${task.date})</span>
+      <button onclick="deleteTask(${index})">❌</button>
+    `;
 
-    document.getElementById("taskInput").value = "";
-    document.getElementById("dateInput").value = "";
+    // drag events
+    li.addEventListener("dragstart", dragStart);
+    li.addEventListener("dragover", dragOver);
+    li.addEventListener("drop", drop);
 
-    loadTasks();
+    list.appendChild(li);
+  });
 }
 
-// 📥 LOAD TASKS
-async function loadTasks() {
-    let res = await fetch("https://study-planner-backend-p03g.onrender.com/tasks");
-    let data = await res.json();
-
-    const list = document.getElementById("taskList");
-    list.innerHTML = "";
-
-    data.forEach(task => {
-        const li = document.createElement("li");
-
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.checked = task.completed;
-
-        checkbox.onchange = async () => {
-            
-            await fetch(`https://study-planner-backend-p03g.onrender.com/toggle-task/${task._id}`, {
-                method: "PUT"
-            });
-            showToast("Updated ✔️");
-            loadTasks();
-        };
-
-        const text = document.createElement("span");
-        text.className = "task-text";
-        text.innerText = `${task.text} (${task.date})`;
-
-        if (task.priority === "High") text.style.color = "red";
-        if (task.priority === "Medium") text.style.color = "orange";
-        if (task.priority === "Low") text.style.color = "green";
-
-        if (task.completed) {
-            text.style.textDecoration = "line-through";
-        }
-
-        const editBtn = document.createElement("button");
-        editBtn.innerText = "Edit";
-        editBtn.className = "btn edit";
-
-        editBtn.onclick = async () => {
-            let newText = prompt("Edit task:", task.text);
-            let newDate = prompt("Edit date:", task.date);
-
-            if (newText && newDate) {
-                await fetch(`https://study-planner-backend-p03g.onrender.com/update-task/${task._id}`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ text: newText, date: newDate })
-                });
-
-                showToast("Updated ✏️");
-                loadTasks();
-            }
-        };
-
-        const delBtn = document.createElement("button");
-        delBtn.innerText = "Delete";
-        delBtn.className = "btn delete";
-
-        delBtn.onclick = async () => {
-            await fetch(`https://study-planner-backend-p03g.onrender.com/delete-task/${task._id}`, {
-                method: "DELETE"
-            });
-
-            showToast("Deleted 🗑️");
-            loadTasks();
-        };
-
-        li.appendChild(checkbox);
-        li.appendChild(text);
-        li.appendChild(editBtn);
-        li.appendChild(delBtn);
-
-        list.appendChild(li);
-    });
+// ❌ Delete
+function deleteTask(index) {
+  let tasks = JSON.parse(localStorage.getItem("tasks"));
+  tasks.splice(index, 1);
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+  loadTasks();
 }
 
-// 🔍 SEARCH
-async function searchTasks() {
-    let keyword = document.getElementById("searchInput").value.toLowerCase();
+// 🧹 Clear
+function clearTasks() {
+  localStorage.removeItem("tasks");
+  loadTasks();
+}
+let draggedIndex = null;
 
-    let res = await fetch("https://study-planner-backend-p03g.onrender.com/tasks");
-    let data = await res.json();
-
-    const list = document.getElementById("taskList");
-    list.innerHTML = "";
-
-    data
-        .filter(task => task.text.toLowerCase().includes(keyword))
-        .forEach(task => {
-            const li = document.createElement("li");
-            li.innerText = `${task.text} (${task.date})`;
-            list.appendChild(li);
-        });
+function dragStart(e) {
+  draggedIndex = e.target.getAttribute("data-index");
 }
 
-// 🚀 START
+function dragOver(e) {
+  e.preventDefault();
+}
+
+function drop(e) {
+  let targetIndex = e.target.closest("li").getAttribute("data-index");
+
+  let tasks = JSON.parse(localStorage.getItem("tasks"));
+
+  let draggedItem = tasks.splice(draggedIndex, 1)[0];
+  tasks.splice(targetIndex, 0, draggedItem);
+
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+  loadTasks();
+}
+
+// 🚀 Start
 loadTasks();
