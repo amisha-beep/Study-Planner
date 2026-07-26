@@ -1,4 +1,4 @@
-# Study Planner Web App
+## Study Planner Web App
 
 ## Features
 - Add, edit, delete tasks
