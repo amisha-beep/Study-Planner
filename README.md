@@ -1,15 +1,15 @@
 ## Study Planner Web App
 
-## Features
+## Features:
 - Add, edit, delete tasks
 - Dark mode UI
 - Responsive design
 
-## Tech Stack
+## Tech Stack:
 - Node.js
 - Express
 - MongoDB
 
-## How to run
+## How to run:
 npm install
 node server.js
